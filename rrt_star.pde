@@ -1,7 +1,8 @@
 /*
   Iván López Broceño
-  RRT* (Rapidly exploring Random Tree) algorithm -> Pathfinding
+  Informed RRT* (Rapidly exploring Random Tree) algorithm -> Pathfinding
   With rewiring to produce a convergence to an optimal solution
+  Once the first path is found the random points are chosen from an ellipse that contains the path
 */
 
 //Vertex v1 = new Vertex(250, 250);
@@ -73,10 +74,15 @@ void draw(){
 
 void rrt_algorithm(){
 
-  // pick a random point
-  PVector random_point = new PVector(random(WIDTH), random(HEIGHT));
-  Vertex random_vertex = new Vertex(random_point.x, random_point.y);
+  // pick a random point and repeat if a path is found and the point isnt inside the ellipse
+  Vertex random_vertex;
+  PVector random_point;
+  do{
+  random_point = new PVector(random(WIDTH), random(HEIGHT));
+  random_vertex = new Vertex(random_point.x, random_point.y);
   random_vertex.clr = color(240, 10, 55);
+  
+  }while(v_reached != null && !isWithinEllipse(random_vertex));
   random_vertex.drawVertex();
   // link this point to the nearest
   // this will define the direction to the next step
@@ -130,6 +136,35 @@ void rrt_algorithm(){
     delay(10);
   }
   counter++;
+}
+
+boolean isWithinEllipse(Vertex v){
+  if (v_reached == null){
+  return false;
+}
+
+  float ellipse_2d = v_reached.cost; //let's say the constant distance of th ellipse is the length of the path, i.e. the cost of the last vertex
+  float v_2d = init.position.dist(v.position) + v_reached.position.dist(v.position); 
+  PVector end = v_reached.position.copy();
+  PVector relative_center = end.sub(init.position).div(2);
+  PVector center = relative_center.copy().add(init.position);
+  
+  pushMatrix();
+  noFill();
+  strokeWeight(3);
+  translate(center.x, center.y);
+  if(relative_center.y > 0){ //idk why this check is needed
+  rotate( PVector.angleBetween(relative_center, new PVector(10, 0)) );
+  }
+  else{
+  rotate( - PVector.angleBetween(relative_center, new PVector(10, 0)) );
+  }
+  
+  ellipse(0, 0, ellipse_2d, sqrt(pow(ellipse_2d, 2) - pow(init.position.dist(v_reached.position), 2)));
+  strokeWeight(1);
+  popMatrix();
+  
+  return v_2d < ellipse_2d;
 }
 
 void randomWalk(){

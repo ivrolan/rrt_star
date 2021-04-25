@@ -9,4 +9,4 @@ Press any key -besides A and ESC- to start/stop the simulation.
 - Informed RRT*: https://twitter.com/Ivrolan/status/1357041435351142401?s=20
 
 ## Explanation of the algorithms:
-- Post on Medium in Spanish: 
+- Post on Medium in Spanish: https://medium.com/blog-robotech/rrt-e-informed-rrt-e9f90b5c3457
